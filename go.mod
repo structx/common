@@ -4,6 +4,7 @@ go 1.21.0
 
 require (
 	github.com/jackc/pgx/v5 v5.4.3
+	github.com/lib/pq v1.10.9
 	go.uber.org/zap v1.25.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
