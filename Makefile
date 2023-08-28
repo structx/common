@@ -7,7 +7,5 @@ lint:
 	golangci-lint run
 
 rpc:
-	protoc --go_out=pkg/pubsub --go_opt=paths=source_relative --go-grpc_out=pkg/pubcon --go-grpc_opt=paths=source_relative \
-	protos/publisher_subscriber.proto
-	protoc --go_out=pkg/pubcon --go_opt=paths=source_relative --go-grpc_out=pkg/pubcon --go-grpc_opt=paths=source_relative \
-	protos/publisher_consumer.proto
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	protos/message_broker.proto

@@ -1,0 +1,32 @@
+
+syntax = "proto3";
+
+option go_package = "message_broker.v1";
+
+package message_broker;
+
+import "google/protobuf/empty.proto";
+
+service MessageBrokerService {
+    rpc Publish (Message) returns (google.protobuf.Empty) {}
+    rpc Subscribe (Subscription) returns (stream Message) {}
+    rpc RequestResponse (Request) returns (Response) {}
+}
+
+message Message {
+    string topic = 1;
+    bytes payload = 2;
+}
+
+message Subscription {
+    string topic = 1;
+}
+
+message Request {
+    string topic = 1;
+    bytes payload = 2;
+}
+
+message Response {
+    bytes payload = 1;
+}
