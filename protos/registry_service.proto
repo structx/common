@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+
+option go_package = "registry.v1";
+
+package registry;
+
+import "google/protobuf/empty.proto";
+
+service RegistryService {
+    rpc AddService (AddServiceRequest) returns (google.protobuf.Empty) {}
+    rpc RemoveService (RemoveServiceRequest) returns (google.protobuf.Empty) {}
+}
+
+message AddServiceRequest {
+    string name = 1;
+    string address = 2;
+    string port = 3;
+}
+
+message RemoveServiceRequest {
+    string name = 1;
+}
