@@ -23,7 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RegistryServiceClient interface {
-	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	// Register a service
+	RegisterService(ctx context.Context, in *RegisterServiceRequest, opts ...grpc.CallOption) (*ServiceReceipt, error)
+	// Remove a service
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -35,9 +37,9 @@ func NewRegistryServiceClient(cc grpc.ClientConnInterface) RegistryServiceClient
 	return &registryServiceClient{cc}
 }
 
-func (c *registryServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
-	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/registry.RegistryService/AddService", in, out, opts...)
+func (c *registryServiceClient) RegisterService(ctx context.Context, in *RegisterServiceRequest, opts ...grpc.CallOption) (*ServiceReceipt, error) {
+	out := new(ServiceReceipt)
+	err := c.cc.Invoke(ctx, "/registry.RegistryService/RegisterService", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +59,9 @@ func (c *registryServiceClient) RemoveService(ctx context.Context, in *RemoveSer
 // All implementations must embed UnimplementedRegistryServiceServer
 // for forward compatibility
 type RegistryServiceServer interface {
-	AddService(context.Context, *AddServiceRequest) (*empty.Empty, error)
+	// Register a service
+	RegisterService(context.Context, *RegisterServiceRequest) (*ServiceReceipt, error)
+	// Remove a service
 	RemoveService(context.Context, *RemoveServiceRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedRegistryServiceServer()
 }
@@ -66,8 +70,8 @@ type RegistryServiceServer interface {
 type UnimplementedRegistryServiceServer struct {
 }
 
-func (UnimplementedRegistryServiceServer) AddService(context.Context, *AddServiceRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
+func (UnimplementedRegistryServiceServer) RegisterService(context.Context, *RegisterServiceRequest) (*ServiceReceipt, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterService not implemented")
 }
 func (UnimplementedRegistryServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
@@ -85,20 +89,20 @@ func RegisterRegistryServiceServer(s grpc.ServiceRegistrar, srv RegistryServiceS
 	s.RegisterService(&RegistryService_ServiceDesc, srv)
 }
 
-func _RegistryService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddServiceRequest)
+func _RegistryService_RegisterService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RegistryServiceServer).AddService(ctx, in)
+		return srv.(RegistryServiceServer).RegisterService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/registry.RegistryService/AddService",
+		FullMethod: "/registry.RegistryService/RegisterService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistryServiceServer).AddService(ctx, req.(*AddServiceRequest))
+		return srv.(RegistryServiceServer).RegisterService(ctx, req.(*RegisterServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -129,8 +133,8 @@ var RegistryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RegistryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddService",
-			Handler:    _RegistryService_AddService_Handler,
+			MethodName: "RegisterService",
+			Handler:    _RegistryService_RegisterService_Handler,
 		},
 		{
 			MethodName: "RemoveService",
