@@ -2,7 +2,8 @@
 package logging
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -10,10 +11,10 @@ import (
 // NewZap creates a new zap logger
 func NewZap() (*zap.Logger, error) {
 
-	l, err := zap.NewProduction()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create zap logger: %w", err)
+	debug := strings.ToLower(os.Getenv("DEBUG_LEVEL"))
+	if debug == "production" {
+		return zap.NewProduction()
 	}
 
-	return l, nil
+	return zap.NewDevelopment()
 }
