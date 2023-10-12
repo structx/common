@@ -25,7 +25,6 @@ const _ = grpc.SupportPackageIsVersion7
 type MessageBrokerServiceClient interface {
 	Publish(ctx context.Context, in *Message, opts ...grpc.CallOption) (*empty.Empty, error)
 	Subscribe(ctx context.Context, in *Subscription, opts ...grpc.CallOption) (MessageBrokerService_SubscribeClient, error)
-	RequestResponse(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
 type messageBrokerServiceClient struct {
@@ -77,22 +76,12 @@ func (x *messageBrokerServiceSubscribeClient) Recv() (*Message, error) {
 	return m, nil
 }
 
-func (c *messageBrokerServiceClient) RequestResponse(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
-	err := c.cc.Invoke(ctx, "/message_broker.MessageBrokerService/RequestResponse", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // MessageBrokerServiceServer is the server API for MessageBrokerService service.
 // All implementations must embed UnimplementedMessageBrokerServiceServer
 // for forward compatibility
 type MessageBrokerServiceServer interface {
 	Publish(context.Context, *Message) (*empty.Empty, error)
 	Subscribe(*Subscription, MessageBrokerService_SubscribeServer) error
-	RequestResponse(context.Context, *Request) (*Response, error)
 	mustEmbedUnimplementedMessageBrokerServiceServer()
 }
 
@@ -105,9 +94,6 @@ func (UnimplementedMessageBrokerServiceServer) Publish(context.Context, *Message
 }
 func (UnimplementedMessageBrokerServiceServer) Subscribe(*Subscription, MessageBrokerService_SubscribeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
-}
-func (UnimplementedMessageBrokerServiceServer) RequestResponse(context.Context, *Request) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RequestResponse not implemented")
 }
 func (UnimplementedMessageBrokerServiceServer) mustEmbedUnimplementedMessageBrokerServiceServer() {}
 
@@ -161,24 +147,6 @@ func (x *messageBrokerServiceSubscribeServer) Send(m *Message) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _MessageBrokerService_RequestResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MessageBrokerServiceServer).RequestResponse(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/message_broker.MessageBrokerService/RequestResponse",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageBrokerServiceServer).RequestResponse(ctx, req.(*Request))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // MessageBrokerService_ServiceDesc is the grpc.ServiceDesc for MessageBrokerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -189,10 +157,6 @@ var MessageBrokerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Publish",
 			Handler:    _MessageBrokerService_Publish_Handler,
-		},
-		{
-			MethodName: "RequestResponse",
-			Handler:    _MessageBrokerService_RequestResponse_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

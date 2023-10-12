@@ -11,27 +11,18 @@ import "google/protobuf/timestamp.proto";
 service MessageBrokerService {
     rpc Publish (Message) returns (google.protobuf.Empty) {}
     rpc Subscribe (Subscription) returns (stream Message) {}
-    rpc RequestResponse (Request) returns (Response) {}
 }
 
 message Message {
     string topic = 1;
     bytes payload = 2;
+    string correlation_id = 3;
+    google.protobuf.Timestamp published_at = 4;
 }
 
 message Subscription {
     string topic = 1;
-}
-
-message Request {
-    string topic = 1;
-    bytes payload = 2;
-    string correlation_id = 3;
-    google.protobuf.Timestamp requested_at = 4;
-}
-
-message Response {
-    bytes payload = 1;
     string correlation_id = 2;
-    google.protobuf.Timestamp responded_at = 3;
+    google.protobuf.Timestamp subscribed_at = 3;
 }
+
