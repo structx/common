@@ -102,22 +102,6 @@ func (w *Wallet) GetAddress() (string, error) {
 	return hex.EncodeToString(hash), nil
 }
 
-func hashSchnorr(suite *edwards25519.SuiteEd25519, message []byte, p kyber.Point) (kyber.Scalar, error) {
-
-	pb, err := p.MarshalBinary()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal public key: %w", err)
-	}
-
-	c := suite.XOF(pb)
-	_, err = c.Write(message)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write message: %w", err)
-	}
-
-	return suite.Scalar().Pick(c), nil
-}
-
 // Signature returns the wallet signature.
 func (w *Wallet) Signature(suite *edwards25519.SuiteEd25519) (string, error) {
 
@@ -152,4 +136,51 @@ func (w *Wallet) Signature(suite *edwards25519.SuiteEd25519) (string, error) {
 	}
 
 	return hex.EncodeToString(buf.Bytes()), nil
+}
+
+// MarshalToFile marshals the wallet to a file.
+func (w *Wallet) MarshalToFile(path string) error {
+
+	publicbytes, err := w.PublicKey.MarshalBinary()
+	if err != nil {
+		return fmt.Errorf("failed to marshal public key: %w", err)
+	}
+
+	privatebytes, err := w.privateKey.MarshalBinary()
+	if err != nil {
+		return fmt.Errorf("failed to marshal private key: %w", err)
+	}
+
+	wallet := exportWallet{
+		PublicKey:  publicbytes,
+		PrivateKey: privatebytes,
+	}
+
+	filebytes, err := json.Marshal(wallet)
+	if err != nil {
+		return fmt.Errorf("failed to marshal wallet: %w", err)
+	}
+
+	err = os.WriteFile(filepath.Clean(path), filebytes, 0600)
+	if err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	return nil
+}
+
+func hashSchnorr(suite *edwards25519.SuiteEd25519, message []byte, p kyber.Point) (kyber.Scalar, error) {
+
+	pb, err := p.MarshalBinary()
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal public key: %w", err)
+	}
+
+	c := suite.XOF(pb)
+	_, err = c.Write(message)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write message: %w", err)
+	}
+
+	return suite.Scalar().Pick(c), nil
 }

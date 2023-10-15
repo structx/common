@@ -2,6 +2,7 @@ package chain_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -43,6 +44,26 @@ func (s *WalletSuite) TestSignature() {
 	assert.NoError(err)
 
 	fmt.Println(addr)
+}
+
+func (s *WalletSuite) TestMarshalToFile() {
+
+	assert := s.Assert()
+
+	err := s.wallet.MarshalToFile("./testfiles/wallet.json")
+	assert.NoError(err)
+}
+
+func (s *WalletSuite) TestNewFromFile() {
+
+	assert := s.Assert()
+
+	_ = os.Setenv("WALLET_PATH", "./testfiles/wallet.json")
+
+	suite := edwards25519.NewBlakeSHA256Ed25519()
+
+	_, err := chain.NewWalletFromFile(suite)
+	assert.NoError(err)
 }
 
 func TestWalletSuite(t *testing.T) {
